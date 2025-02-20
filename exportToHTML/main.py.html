@@ -1,0 +1,133 @@
+<html>
+<head>
+<title>main.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #5f826b; font-style: italic;}
+.s4 { color: #6aab73;}
+.s5 { color: #2aacb8;}
+.s6 { color: #7a7e85;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+main.py</font>
+</center></td></tr></table>
+<pre><span class="s0">from </span><span class="s1">fastapi </span><span class="s0">import </span><span class="s1">FastAPI</span><span class="s2">, </span><span class="s1">BackgroundTasks</span>
+<span class="s0">import </span><span class="s1">requests</span>
+<span class="s0">from </span><span class="s1">datetime </span><span class="s0">import </span><span class="s1">datetime</span>
+<span class="s0">from </span><span class="s1">pydantic </span><span class="s0">import </span><span class="s1">BaseModel</span>
+<span class="s0">from </span><span class="s1">typing </span><span class="s0">import </span><span class="s1">List</span>
+<span class="s0">import </span><span class="s1">httpx</span>
+<span class="s0">import </span><span class="s1">asyncio</span>
+
+<span class="s0">class </span><span class="s1">Setting</span><span class="s2">(</span><span class="s1">BaseModel</span><span class="s2">):</span>
+    <span class="s1">label</span><span class="s2">: </span><span class="s1">str</span>
+    <span class="s1">type</span><span class="s2">: </span><span class="s1">str</span>
+    <span class="s1">required</span><span class="s2">: </span><span class="s1">bool</span>
+    <span class="s1">default</span><span class="s2">: </span><span class="s1">str</span>
+
+<span class="s0">class </span><span class="s1">Payload</span><span class="s2">(</span><span class="s1">BaseModel</span><span class="s2">):</span>
+    <span class="s1">channel_id</span><span class="s2">: </span><span class="s1">str</span>
+    <span class="s1">return_url</span><span class="s2">: </span><span class="s1">str</span>
+    <span class="s1">settings</span><span class="s2">: </span><span class="s1">List</span><span class="s2">[</span><span class="s1">Setting</span><span class="s2">]</span>
+
+<span class="s1">app </span><span class="s2">= </span><span class="s1">FastAPI</span><span class="s2">()</span>
+
+<span class="s0">async def </span><span class="s1">fetch_weekly_side_hustles</span><span class="s2">(</span><span class="s1">payload</span><span class="s2">: </span><span class="s1">Payload</span><span class="s2">):</span>
+    <span class="s3">&quot;&quot;&quot;Fetch side hustle ideas from the API and return them.&quot;&quot;&quot;</span>
+    <span class="s1">RAPIDAPI_KEY </span><span class="s2">= </span><span class="s4">&quot;a9d4db2b83msh316d2d491587ab9p1e01b8jsn5c2a93b4c275&quot;</span>
+    <span class="s1">RAPIDAPI_HOST </span><span class="s2">= </span><span class="s4">&quot;jsearch.p.rapidapi.com&quot;</span>
+    <span class="s1">url </span><span class="s2">= </span><span class="s4">&quot;https://jsearch.p.rapidapi.com/search&quot;</span>
+    <span class="s1">headers </span><span class="s2">= {</span>
+        <span class="s4">&quot;X-RapidAPI-Key&quot;</span><span class="s2">: </span><span class="s1">RAPIDAPI_KEY</span><span class="s2">,</span>
+        <span class="s4">&quot;X-RapidAPI-Host&quot;</span><span class="s2">: </span><span class="s1">RAPIDAPI_HOST</span>
+    <span class="s2">}</span>
+    <span class="s1">params </span><span class="s2">= {</span><span class="s4">&quot;query&quot;</span><span class="s2">: </span><span class="s4">&quot;side hustle&quot;</span><span class="s2">, </span><span class="s4">&quot;num_pages&quot;</span><span class="s2">: </span><span class="s4">&quot;1&quot;</span><span class="s2">}</span>
+    <span class="s1">response </span><span class="s2">= </span><span class="s1">requests</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s1">url</span><span class="s2">, </span><span class="s1">headers</span><span class="s2">=</span><span class="s1">headers</span><span class="s2">, </span><span class="s1">params</span><span class="s2">=</span><span class="s1">params</span><span class="s2">)</span>
+    <span class="s0">if </span><span class="s1">response</span><span class="s2">.</span><span class="s1">status_code </span><span class="s2">== </span><span class="s5">200</span><span class="s2">:</span>
+        <span class="s1">results </span><span class="s2">= </span><span class="s1">response</span><span class="s2">.</span><span class="s1">json</span><span class="s2">().</span><span class="s1">get</span><span class="s2">(</span><span class="s4">&quot;data&quot;</span><span class="s2">, [])</span>
+        <span class="s1">return_url </span><span class="s2">= </span><span class="s1">payload</span><span class="s2">[</span><span class="s4">&quot;return_url&quot;</span><span class="s2">]</span>
+        <span class="s1">message </span><span class="s2">= </span><span class="s4">&quot;</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s2">.</span><span class="s1">join</span><span class="s2">([</span><span class="s1">result </span><span class="s0">for </span><span class="s1">result </span><span class="s0">in </span><span class="s1">results </span><span class="s0">if </span><span class="s1">result </span><span class="s0">is not None</span><span class="s2">])</span>
+        <span class="s1">data </span><span class="s2">= {</span>
+            <span class="s4">&quot;message&quot;</span><span class="s2">: </span><span class="s1">message</span><span class="s2">,</span>
+            <span class="s4">&quot;username&quot;</span><span class="s2">: </span><span class="s4">&quot;UgoBest&quot;</span><span class="s2">,</span>
+            <span class="s4">&quot;event_name&quot;</span><span class="s2">: </span><span class="s4">&quot;Weekly hustle Generator&quot;</span><span class="s2">,</span>
+            <span class="s4">&quot;status&quot;</span><span class="s2">: </span><span class="s4">&quot;error&quot;</span>
+        <span class="s2">}</span>
+
+        <span class="s0">async with </span><span class="s1">httpx</span><span class="s2">.</span><span class="s1">AsyncClient</span><span class="s2">() </span><span class="s0">as </span><span class="s1">client</span><span class="s2">:</span>
+            <span class="s0">await </span><span class="s1">client</span><span class="s2">.</span><span class="s1">post</span><span class="s2">(</span><span class="s1">payload</span><span class="s2">.</span><span class="s1">return_url</span><span class="s2">, </span><span class="s1">json</span><span class="s2">=</span><span class="s1">data</span><span class="s2">)</span>
+
+
+    <span class="s0">else</span><span class="s2">:</span>
+        <span class="s0">return </span><span class="s2">{</span><span class="s4">&quot;error&quot;</span><span class="s2">: </span><span class="s4">f&quot;Failed to fetch jobs. Status Code: </span><span class="s0">{</span><span class="s1">response</span><span class="s2">.</span><span class="s1">status_code</span><span class="s0">}</span><span class="s4">&quot;</span><span class="s2">}</span>
+
+
+<span class="s2">@</span><span class="s1">app</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s4">&quot;/weekly-hustles/&quot;</span><span class="s2">)</span>
+<span class="s0">def </span><span class="s1">get_weekly_hustles</span><span class="s2">():</span>
+    <span class="s3">&quot;&quot;&quot;Fetch and return weekly side hustles dynamically when requested.&quot;&quot;&quot;</span>
+    <span class="s1">side_hustles </span><span class="s2">= </span><span class="s1">fetch_weekly_side_hustles</span><span class="s2">()  </span><span class="s6"># Call function inside endpoint</span>
+    <span class="s0">if not </span><span class="s1">side_hustles</span><span class="s2">:</span>
+        <span class="s0">return </span><span class="s2">{</span><span class="s4">&quot;message&quot;</span><span class="s2">: </span><span class="s4">&quot;No side hustles available yet. Please check later.&quot;</span><span class="s2">}</span>
+    <span class="s0">return </span><span class="s2">{</span><span class="s4">&quot;weekly_hustles&quot;</span><span class="s2">: </span><span class="s1">side_hustles</span><span class="s2">}</span>
+
+<span class="s2">@</span><span class="s1">app</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s4">&quot;/telex-integration/&quot;</span><span class="s2">)</span>
+<span class="s0">def </span><span class="s1">telex_integration</span><span class="s2">():</span>
+    <span class="s3">&quot;&quot;&quot;Telex integration JSON endpoint.&quot;&quot;&quot;</span>
+    <span class="s0">return </span><span class="s2">{</span>
+        <span class="s4">&quot;data&quot;</span><span class="s2">: {</span>
+            <span class="s4">&quot;date&quot;</span><span class="s2">: {</span>
+                <span class="s4">&quot;created_at&quot;</span><span class="s2">: </span><span class="s1">datetime</span><span class="s2">.</span><span class="s1">now</span><span class="s2">().</span><span class="s1">strftime</span><span class="s2">(</span><span class="s4">&quot;%Y-%m-%d&quot;</span><span class="s2">),</span>
+                <span class="s4">&quot;updated_at&quot;</span><span class="s2">: </span><span class="s1">datetime</span><span class="s2">.</span><span class="s1">now</span><span class="s2">().</span><span class="s1">strftime</span><span class="s2">(</span><span class="s4">&quot;%Y-%m-%d&quot;</span><span class="s2">)</span>
+            <span class="s2">},</span>
+            <span class="s4">&quot;descriptions&quot;</span><span class="s2">: {</span>
+                <span class="s4">&quot;app_description&quot;</span><span class="s2">: </span><span class="s4">&quot;Provides weekly side hustle ideas.&quot;</span><span class="s2">,</span>
+                <span class="s4">&quot;app_logo&quot;</span><span class="s2">: </span><span class="s4">&quot;https://postimg.cc/bGS5k8hm&quot;</span><span class="s2">,</span>
+                <span class="s4">&quot;app_name&quot;</span><span class="s2">: </span><span class="s4">&quot;Weekly Side Hustle Generator&quot;</span><span class="s2">,</span>
+                <span class="s4">&quot;app_url&quot;</span><span class="s2">: </span><span class="s4">&quot;http://127.0.0.1:8000/weekly-hustles/&quot;</span><span class="s2">,</span>
+                <span class="s4">&quot;background_color&quot;</span><span class="s2">: </span><span class="s4">&quot;#FF5733&quot;</span>
+            <span class="s2">},</span>
+            <span class="s4">&quot;integration_category&quot;</span><span class="s2">: </span><span class="s4">&quot;Business &amp; Finance&quot;</span><span class="s2">,</span>
+            <span class="s4">&quot;integration_type&quot;</span><span class="s2">: </span><span class="s4">&quot;interval&quot;</span><span class="s2">,</span>
+            <span class="s4">&quot;is_active&quot;</span><span class="s2">: </span><span class="s0">True</span><span class="s2">,</span>
+            <span class="s4">&quot;output&quot;</span><span class="s2">: [</span>
+                <span class="s2">{</span>
+                    <span class="s4">&quot;label&quot;</span><span class="s2">: </span><span class="s4">&quot;output_channel_1&quot;</span><span class="s2">,</span>
+                    <span class="s4">&quot;value&quot;</span><span class="s2">: </span><span class="s0">True</span>
+                <span class="s2">}</span>
+            <span class="s2">],</span>
+            <span class="s4">&quot;key_features&quot;</span><span class="s2">: [</span>
+                <span class="s4">&quot;Fetches trending side hustles every week&quot;</span><span class="s2">,</span>
+                <span class="s4">&quot;Uses external APIs like Upwork and LinkedIn&quot;</span><span class="s2">,</span>
+                <span class="s4">&quot;Provides curated gig economy opportunities&quot;</span><span class="s2">,</span>
+                <span class="s4">&quot;Updated dynamically&quot;</span>
+            <span class="s2">],</span>
+            <span class="s4">&quot;permissions&quot;</span><span class="s2">: {</span>
+                <span class="s4">&quot;monitoring_user&quot;</span><span class="s2">: {</span>
+                    <span class="s4">&quot;always_online&quot;</span><span class="s2">: </span><span class="s0">True</span><span class="s2">,</span>
+                    <span class="s4">&quot;display_name&quot;</span><span class="s2">: </span><span class="s4">&quot;Side Hustle Bot&quot;</span>
+                <span class="s2">}</span>
+            <span class="s2">},</span>
+            <span class="s4">&quot;settings&quot;</span><span class="s2">: [</span>
+                <span class="s2">{</span>
+                    <span class="s4">&quot;label&quot;</span><span class="s2">: </span><span class="s4">&quot;interval&quot;</span><span class="s2">,</span>
+                    <span class="s4">&quot;type&quot;</span><span class="s2">: </span><span class="s4">&quot;text&quot;</span><span class="s2">,</span>
+                    <span class="s4">&quot;required&quot;</span><span class="s2">: </span><span class="s0">True</span><span class="s2">,</span>
+                    <span class="s4">&quot;default&quot;</span><span class="s2">: </span><span class="s4">&quot;* * * * *&quot;</span>
+                <span class="s2">}</span>
+            <span class="s2">],</span>
+            <span class="s4">&quot;tick_url&quot;</span><span class="s2">: </span><span class="s4">&quot;http://127.0.0.1:8000/tick/&quot;</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+<span class="s2">@</span><span class="s1">app</span><span class="s2">.</span><span class="s1">post</span><span class="s2">(</span><span class="s4">&quot;/tick&quot;</span><span class="s2">, </span><span class="s1">status_code</span><span class="s2">=</span><span class="s5">202</span><span class="s2">)</span>
+<span class="s0">def </span><span class="s1">monitor</span><span class="s2">(</span><span class="s1">payload</span><span class="s2">: </span><span class="s1">Payload</span><span class="s2">, </span><span class="s1">background_tasks</span><span class="s2">: </span><span class="s1">BackgroundTasks</span><span class="s2">):</span>
+    <span class="s1">background_tasks</span><span class="s2">.</span><span class="s1">add_task</span><span class="s2">(</span><span class="s1">fetch_weekly_side_hustles</span><span class="s2">, </span><span class="s1">payload</span><span class="s2">)</span>
+    <span class="s0">return </span><span class="s2">{</span><span class="s4">&quot;status&quot;</span><span class="s2">: </span><span class="s4">&quot;accepted&quot;</span><span class="s2">}</span></pre>
+</body>
+</html>
