@@ -61,13 +61,13 @@ async def fetch_weekly_side_hustles(payload: Payload):
         return {"error": f"Failed to fetch jobs. Status Code: {response.status_code}"}
 
 
-@app.get("/weekly-hustles/")
-def get_weekly_hustles():
+#@app.get("/weekly-hustles/")
+#def get_weekly_hustles():
     """Fetch and return weekly side hustles dynamically when requested."""
-    side_hustles = fetch_weekly_side_hustles()  # Call function inside endpoint
-    if not side_hustles:
-        return {"message": "No side hustles available yet. Please check later."}
-    return {"weekly_hustles": side_hustles}
+    #side_hustles = fetch_weekly_side_hustles()  # Call function inside endpoint
+    #if not side_hustles:
+        #return {"message": "No side hustles available yet. Please check later."}
+   # return {"weekly_hustles": side_hustles}
 
 @app.get("/telex-integration/")
 def telex_integration():
