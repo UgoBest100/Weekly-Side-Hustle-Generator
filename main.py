@@ -5,6 +5,9 @@ from pydantic import BaseModel
 from typing import List
 import httpx
 import asyncio
+from fastapi.middleware.cors import CORSMiddleware
+
+
 
 class Setting(BaseModel):
     label: str
@@ -18,6 +21,15 @@ class Payload(BaseModel):
     settings: List[Setting]
 
 app = FastAPI()
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 async def fetch_weekly_side_hustles(payload: Payload):
     """Fetch side hustle ideas from the API and return them."""
