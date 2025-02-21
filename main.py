@@ -69,7 +69,7 @@ async def fetch_weekly_side_hustles(payload: Payload):
         #return {"message": "No side hustles available yet. Please check later."}
    # return {"weekly_hustles": side_hustles}
 
-@app.get("/telex-integration.json")
+@app.get("/integration.json")
 def telex_integration():
     """Telex integration JSON endpoint."""
     return {
@@ -89,24 +89,13 @@ def telex_integration():
             "integration_category": "Finance & Payments",
             "integration_type": "interval",
             "is_active": True,
-            "output": [
-                {
-                    "label": "output_channel_1",
-                    "value": True
-                }
-            ],
+            "author": "UgoBest",
             "key_features": [
                 "Fetches trending side hustles every week",
                 "Uses external APIs like Upwork and LinkedIn",
                 "Provides curated gig economy opportunities",
                 "Updated dynamically"
             ],
-            "permissions": {
-                "monitoring_user": {
-                    "always_online": True,
-                    "display_name": "Side Hustle Bot"
-                }
-            },
             "settings": [
                 {
                     "label": "interval",
