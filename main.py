@@ -61,7 +61,7 @@ async def fetch_weekly_side_hustles(payload: Payload):
         return {"error": f"Failed to fetch jobs. Status Code: {response.status_code}"}
 
 
-#@app.get("/weekly-hustles/")
+#####@app.get("/weekly-hustles/")
 #def get_weekly_hustles():
     """Fetch and return weekly side hustles dynamically when requested."""
     #side_hustles = fetch_weekly_side_hustles()  # Call function inside endpoint
@@ -86,7 +86,7 @@ def telex_integration():
                 "app_url": "https://weekly-side-hustle-generator.onrender.com",
                 "background_color": "#FF5733"
             },
-            "integration_category": "Finance & Business",
+            "integration_category": "Finance & Payments",
             "integration_type": "interval",
             "is_active": True,
             "output": [
