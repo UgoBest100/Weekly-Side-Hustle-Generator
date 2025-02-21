@@ -79,7 +79,7 @@ def telex_integration():
                 "updated_at": datetime.now().strftime("%Y-%m-%d")
             },
             "descriptions": {
-                "target_url": "https://weekly-side-hustle-generator.onrender.com/telex-integration",
+
                 "app_description": "Provides weekly side hustle ideas.",
                 "app_logo": "https://postimg.cc/bGS5k8hm",
                 "app_name": "Weekly Side Hustle Generator",
@@ -115,7 +115,8 @@ def telex_integration():
                     "default": "* * * * *"
                 }
             ],
-            "tick_url": "https://weekly-side-hustle-generator.onrender.com/tick/"
+            "tick_url": "https://weekly-side-hustle-generator.onrender.com/tick/",
+            "target_url": "https://weekly-side-hustle-generator.onrender.com/telex-integration"
         }
     }
 @app.post("/tick", status_code=202)
