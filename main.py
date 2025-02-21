@@ -44,7 +44,7 @@ async def fetch_weekly_side_hustles(payload: Payload):
     response = requests.get(url, headers=headers, params=params)
     if response.status_code == 200:
         results = response.json().get("data", [])
-        return_url = payload["return_url"]
+        return_url = "https://ping.telex.im/v1/webhooks/01952814-87fa-74ff-839a-5937f06f0d5f"
         message = "\n".join([result for result in results if result is not None])
         data = {
             "message": message,
@@ -54,7 +54,7 @@ async def fetch_weekly_side_hustles(payload: Payload):
         }
 
         async with httpx.AsyncClient() as client:
-            await client.post(payload.return_url, json=data)
+            await client.post(return_url, json=data)
 
 
     else:
