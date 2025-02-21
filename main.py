@@ -69,7 +69,7 @@ async def fetch_weekly_side_hustles(payload: Payload):
         #return {"message": "No side hustles available yet. Please check later."}
    # return {"weekly_hustles": side_hustles}
 
-@app.get("/telex-integration/")
+@app.get("/telex-integration.json")
 def telex_integration():
     """Telex integration JSON endpoint."""
     return {
@@ -116,7 +116,7 @@ def telex_integration():
                 }
             ],
             "tick_url": "https://weekly-side-hustle-generator.onrender.com/tick/",
-            "target_url": "https://weekly-side-hustle-generator.onrender.com/telex-integration"
+            "target_url": ""
         }
     }
 @app.post("/tick", status_code=202)
