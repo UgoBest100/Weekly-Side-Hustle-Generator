@@ -82,7 +82,7 @@ def telex_integration():
                 "app_description": "Provides weekly side hustle ideas.",
                 "app_logo": "https://postimg.cc/bGS5k8hm",
                 "app_name": "Weekly Side Hustle Generator",
-                "app_url": "http://127.0.0.1:8000/weekly-hustles/",
+                "app_url": "https://weekly-side-hustle-generator.onrender.com",
                 "background_color": "#FF5733"
             },
             "integration_category": "Business & Finance",
@@ -114,7 +114,7 @@ def telex_integration():
                     "default": "* * * * *"
                 }
             ],
-            "tick_url": "http://127.0.0.1:8000/tick/"
+            "tick_url": "https://weekly-side-hustle-generator.onrender.com/tick/"
         }
     }
 @app.post("/tick", status_code=202)
