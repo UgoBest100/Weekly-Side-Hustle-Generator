@@ -42,12 +42,13 @@ async def fetch_weekly_side_hustles(payload: Payload):
     }
     params = {"query": "side hustle", "num_pages": "1"}
     response = requests.get(url, headers=headers, params=params)
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(response.json())
     if response.status_code == 200:
         results = response.json().get("weekly_hustles")
         return_url = "https://ping.telex.im/v1/webhooks/01952814-87fa-74ff-839a-5937f06f0d5f"
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.info(results[0])
+
         message = "\n\n".join([
             f"🔹 **{job['job_title']}**\n"
             f"📌 Employer: {job['employer_name']}\n"
