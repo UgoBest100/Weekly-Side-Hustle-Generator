@@ -45,7 +45,20 @@ async def fetch_weekly_side_hustles(payload: Payload):
     if response.status_code == 200:
         results = response.json().get("data", [])
         return_url = "https://ping.telex.im/v1/webhooks/01952814-87fa-74ff-839a-5937f06f0d5f"
-        message = "\n".join([result for result in results if result is not None])
+        message = "\n\n".join([
+            f"🔹 **{job['job_title']}**\n"
+            f"📌 Employer: {job['employer_name']}\n"
+            f"🌐 Website: {job.get('employer_website', 'N/A')}\n"
+            f"📍 Location: {job.get('job_location', 'Remote' if job['job_is_remote'] else 'N/A')}\n"
+            f"🕒 Employment Type: {job.get('job_employment_type', 'N/A')}\n"
+            f"💼 Published By: {job.get('job_publisher', 'N/A')}\n"
+            f"📅 Posted: {job.get('job_posted_at', 'N/A')}\n"
+            f"📄 Description: {job.get('job_description', 'N/A')[:300]}...\n"  # Truncate for brevity
+            f"⚡ Benefits: {', '.join(job['job_highlights'].get('Benefits', ['N/A']))}\n"
+            f"🎯 Qualifications: {', '.join(job['job_highlights'].get('Qualifications', ['N/A']))}\n"
+            f"🔗 Apply Here: {job['job_apply_link']}"
+            for job in results["weekly_hustles"]
+        ])
         data = {
             "message": message,
             "username": "UgoBest",
