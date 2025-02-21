@@ -6,6 +6,7 @@ from typing import List
 import httpx
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
+import logging
 
 
 
@@ -31,7 +32,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-async def fetch_weekly_side_hustles(payload: Payload):
+import asyncio
+
+async def fetch_weekly_side_hustles(payload):
     """Fetch side hustle ideas from the API and return them."""
     RAPIDAPI_KEY = "a9d4db2b83msh316d2d491587ab9p1e01b8jsn5c2a93b4c275"
     RAPIDAPI_HOST = "jsearch.p.rapidapi.com"
@@ -41,42 +44,46 @@ async def fetch_weekly_side_hustles(payload: Payload):
         "X-RapidAPI-Host": RAPIDAPI_HOST
     }
     params = {"query": "side hustle", "num_pages": "1"}
-    response = requests.get(url, headers=headers, params=params)
-    import logging
     logger = logging.getLogger(__name__)
-    logger.info(response.json())
-    if response.status_code == 200:
-        results = response.json().get("weekly_hustles")
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=headers, params=params)
+            response.raise_for_status()  # Raise an exception for 4xx/5xx responses
+            data = response.json()
+        logger.info(data)
+        results = data.get("weekly_hustles", [])
+        if not results:
+            return {"error": "No side hustles found."}
         return_url = "https://ping.telex.im/v1/webhooks/01952814-87fa-74ff-839a-5937f06f0d5f"
-
         message = "\n\n".join([
-            f"🔹 **{job['job_title']}**\n"
-            f"📌 Employer: {job['employer_name']}\n"
-            f"🌐 Website: {job.get('employer_website', 'N/A')}\n"
-            f"📍 Location: {job.get('job_location', 'Remote' if job['job_is_remote'] else 'N/A')}\n"
-            f"🕒 Employment Type: {job.get('job_employment_type', 'N/A')}\n"
-            f"💼 Published By: {job.get('job_publisher', 'N/A')}\n"
-            f"📅 Posted: {job.get('job_posted_at', 'N/A')}\n"
-            f"📄 Description: {job.get('job_description', 'N/A')[:300]}...\n"  # Truncate for brevity
-            f"⚡ Benefits: {', '.join(job['job_highlights'].get('Benefits', ['N/A']))}\n"
-            f"🎯 Qualifications: {', '.join(job['job_highlights'].get('Qualifications', ['N/A']))}\n"
-            f"🔗 Apply Here: {job['job_apply_link']}"
+            f":small_blue_diamond: *{job['job_title']}*\n"
+            f":drawing_pin: Employer: {job['employer_name']}\n"
+            f":globe_with_meridians: Website: {job.get('employer_website', 'N/A')}\n"
+            f":round_drawing_pin: Location: {job.get('job_location', 'Remote' if job['job_is_remote'] else 'N/A')}\n"
+            f":clock3: Employment Type: {job.get('job_employment_type', 'N/A')}\n"
+            f":briefcase: Published By: {job.get('job_publisher', 'N/A')}\n"
+            f":date: Posted: {job.get('job_posted_at', 'N/A')}\n"
+            f":page_facing_up: Description: {job.get('job_description', 'N/A')[:300]}...\n"
+            f":zap: Benefits: {', '.join(job.get('job_highlights', {}).get('Benefits', ['N/A']))}\n"
+            f":dart: Qualifications: {', '.join(job.get('job_highlights', {}).get('Qualifications', ['N/A']))}\n"
+            f":link: Apply Here: {job['job_apply_link']}"
             for job in results
         ])
-        data = {
+        payload_data = {
             "message": message,
             "username": "UgoBest",
-            "event_name": "Weekly hustle Generator",
-            "status": "error"
+            "event_name": "Weekly Hustle Generator",
+            "status": "success"
         }
-
         async with httpx.AsyncClient() as client:
-            await client.post(return_url, json=data)
-
-
-    else:
-        return {"error": f"Failed to fetch jobs. Status Code: {response.status_code}"}
-
+            await client.post(return_url, json=payload_data)
+        return payload_data
+    except httpx.HTTPStatusError as e:
+        logger.error(f"HTTP error occurred: {e}")
+        return {"error": f"Failed to fetch jobs. Status Code: {e.response.status_code}"}
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return {"error": f"An unexpected error occurred: {str(e)}"}
 
 #####@app.get("/weekly-hustles/")
 #def get_weekly_hustles():
