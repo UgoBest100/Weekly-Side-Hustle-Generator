@@ -86,7 +86,7 @@ def telex_integration():
                 "app_url": "https://weekly-side-hustle-generator.onrender.com",
                 "background_color": "#FF5733"
             },
-            "integration_category": "Business & Finance",
+            "integration_category": "Finance & Business",
             "integration_type": "interval",
             "is_active": True,
             "output": [
