@@ -6,7 +6,8 @@ from typing import List
 import httpx
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
-
+import logging
+logger = logging.getLogger(__name__)
 
 
 class Setting(BaseModel):
@@ -41,9 +42,9 @@ async def fetch_weekly_side_hustles(payload: Payload):
         "X-RapidAPI-Host": RAPIDAPI_HOST
     }
     params = {"query": "side hustle", "num_pages": "1"}
+    logger.info("CHECK")
     response = requests.get(url, headers=headers, params=params)
-    import logging
-    logger = logging.getLogger(__name__)
+
     logger.info("CHECK")
     logger.info(response.json())
 
