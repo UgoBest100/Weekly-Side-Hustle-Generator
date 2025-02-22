@@ -122,6 +122,24 @@ This application can be deployed using **Render**, **Heroku**, or **Docker**.
    docker run -p 8000:8000 weekly-side-hustle
    ```
 
+   # Hiring Manager API Integration
+
+## Features
+- Retrieves possible hiring managers for job postings.
+- Uses **RapidAPI** for seamless integration.
+- Limited to **8 requests per month** (free tier).
+
+## API Configuration
+
+To use this API, set up your environment variables:
+
+### Environment Variables  
+Create a `.env` file in your project root and add:
+
+```plaintext
+RAPIDAPI_KEY=your_rapidapi_key
+RAPIDAPI_HOST=get-possible-hiring-manager.p.rapidapi.com
+
    Screenshots
    ![image alt](https://github.com/telexintegrations/Weekly-Side-Hustle-Generator/blob/6162adab4d95a6d0cc096677d27e4fa84348ab94/e34feed0-f174-4a58-a398-8e9c0a3c0693.JPG)
 
