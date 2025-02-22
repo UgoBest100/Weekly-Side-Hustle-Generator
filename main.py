@@ -50,7 +50,7 @@ async def fetch_weekly_side_hustles(payload: Payload):
     logger.info(response)
 
     if response.status_code == 200:
-        jobs_list = response.json().get("jobs", [])
+        jobs_list = response.json()
         return_url = "https://ping.telex.im/v1/webhooks/01952814-87fa-74ff-839a-5937f06f0d5f"
 
         message = "\n\n".join([
