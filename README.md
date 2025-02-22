@@ -122,6 +122,9 @@ This application can be deployed using **Render**, **Heroku**, or **Docker**.
    docker run -p 8000:8000 weekly-side-hustle
    ```
 
+   Screenshots
+   ![image alt](https://github.com/telexintegrations/Weekly-Side-Hustle-Generator/blob/6162adab4d95a6d0cc096677d27e4fa84348ab94/e34feed0-f174-4a58-a398-8e9c0a3c0693.JPG)
+
 ## Author
 Developed by **UgoBest** for the HNG Internship Telex Integration Stage 3 Task.
 
