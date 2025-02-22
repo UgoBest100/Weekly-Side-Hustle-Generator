@@ -123,6 +123,7 @@ def telex_integration():
 
 
 @app.post("/tick", status_code=202)
+@app.post("/tick/", status_code=202)  # Accept both with and without a slash
 def monitor(payload: Payload, background_tasks: BackgroundTasks):
     background_tasks.add_task(fetch_weekly_side_hustles, payload)
     return {"status": "accepted"}
