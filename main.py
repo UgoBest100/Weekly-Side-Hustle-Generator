@@ -116,7 +116,7 @@ def telex_integration():
                     "default": "* * * * *"
                 }
             ],
-            "tick_url": "https://weekly-side-hustle-generator.onrender.com/tick/",
+            "tick_url": "https://weekly-side-hustle-generator.onrender.com/tick",
             "target_url": ""
         }
     }
