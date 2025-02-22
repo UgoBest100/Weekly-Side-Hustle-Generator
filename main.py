@@ -30,11 +30,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 async def fetch_weekly_side_hustles(payload: Payload):
     """Fetch side hustle ideas from the API and return them."""
     RAPIDAPI_KEY = "a9d4db2b83msh316d2d491587ab9p1e01b8jsn5c2a93b4c275"
-    RAPIDAPI_HOST = "jsearch.p.rapidapi.com"
-    url = "https://jsearch.p.rapidapi.com/search"
+    RAPIDAPI_HOST = "linkedin-job-search-api.p.rapidapi.com"
+    url = "https://linkedin-job-search-api.p.rapidapi.com/active-jb-24h"
+
     headers = {
         "X-RapidAPI-Key": RAPIDAPI_KEY,
         "X-RapidAPI-Host": RAPIDAPI_HOST
@@ -48,18 +50,18 @@ async def fetch_weekly_side_hustles(payload: Payload):
         return_url = "https://ping.telex.im/v1/webhooks/01952814-87fa-74ff-839a-5937f06f0d5f"
 
         message = "\n\n".join([
-           f"🔹 **{job['job_title']}**\n"
-            f"📌 Employer: {job['employer_name']}\n"
-            f"🌐 Website: {job.get('employer_website', 'N/A')}\n"
-           f"📍 Location: {job.get('job_location', 'Remote' if job['job_is_remote'] else 'N/A')}\n"
-            f"🕒 Employment Type: {job.get('job_employment_type', 'N/A')}\n"
-           f"💼 Published By: {job.get('job_publisher', 'N/A')}\n"
-           f"📅 Posted: {job.get('job_posted_at', 'N/A')}\n"
-           f"📄 Description: {job.get('job_description', 'N/A')[:300]}...\n"  # Truncate for brevity
-           f"⚡ Benefits: {', '.join(job['job_highlights'].get('Benefits', ['N/A']))}\n"
-           f"🎯 Qualifications: {', '.join(job['job_highlights'].get('Qualifications', ['N/A']))}\n"
-           f"🔗 Apply Here: {job['job_apply_link']}"
-            for job in response
+            f"🔹 **{job['title']}**\n"
+            f"📌 Employer: {job['organization']}\n"
+            f"🌐 Website: {job.get('organization_url', 'N/A')}\n"
+            f"📍 Location: {job.get('linkedin_org_headquarters', 'Remote' if job['remote_derived'] else 'N/A')}\n"
+            f"🕒 Employment Type: {job.get('location_type', 'N/A')}\n"
+            f"💼 Published By: {job.get('recruiter_name', 'N/A')}\n"
+            f"📅 Posted: {job.get('date_posted', 'N/A')}\n"
+            f"📄 Description: {job.get('linkedin_org_description', 'N/A')[:300]}...\n"  # Truncate for brevity
+            f"⚡ Benefits: {job.get('linkedin_org_slogan', 'N/A')}\n"
+            f"🎯 Qualifications: {job.get('linkedin_org_size', 'N/A')}\n"
+            f"🔗 Apply Here: {job['url']}"
+            for job in response.json()
         ])
         data = {
            "message": message,
