@@ -4,11 +4,9 @@ from datetime import datetime
 from pydantic import BaseModel
 from typing import List
 import httpx
-import asyncio
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 logger = logging.getLogger(__name__)
-
 
 class Setting(BaseModel):
     label: str
@@ -42,54 +40,39 @@ async def fetch_weekly_side_hustles(payload: Payload):
         "X-RapidAPI-Host": RAPIDAPI_HOST
     }
     params = {"query": "side hustle", "num_pages": "1"}
-    logger.info("CHECK")
     response = requests.get(url, headers=headers, params=params)
+    logger.info("Check response")
+    logger.info(response)
 
-    logger.info("CHECK")
-    logger.info(response.json())
+    if response.status_code == 200:
+        return_url = "https://ping.telex.im/v1/webhooks/01952814-87fa-74ff-839a-5937f06f0d5f"
 
+        message = "\n\n".join([
+           f"🔹 **{job['job_title']}**\n"
+            f"📌 Employer: {job['employer_name']}\n"
+            f"🌐 Website: {job.get('employer_website', 'N/A')}\n"
+           f"📍 Location: {job.get('job_location', 'Remote' if job['job_is_remote'] else 'N/A')}\n"
+            f"🕒 Employment Type: {job.get('job_employment_type', 'N/A')}\n"
+           f"💼 Published By: {job.get('job_publisher', 'N/A')}\n"
+           f"📅 Posted: {job.get('job_posted_at', 'N/A')}\n"
+           f"📄 Description: {job.get('job_description', 'N/A')[:300]}...\n"  # Truncate for brevity
+           f"⚡ Benefits: {', '.join(job['job_highlights'].get('Benefits', ['N/A']))}\n"
+           f"🎯 Qualifications: {', '.join(job['job_highlights'].get('Qualifications', ['N/A']))}\n"
+           f"🔗 Apply Here: {job['job_apply_link']}"
+            for job in response
+        ])
+        data = {
+           "message": message,
+           "username": "UgoBest",
+           "event_name": "Weekly hustle Generator",
+            "status": "error"
+        }
 
+        async with httpx.AsyncClient() as client:
+           await client.post(return_url, json=data)
 
-    #if response.status_code == 200:
-       # results = response.json().get("weekly_hustles")
-        #return_url = "https://ping.telex.im/v1/webhooks/01952814-87fa-74ff-839a-5937f06f0d5f"
-
-        #message = "\n\n".join([
-           # f"🔹 **{job['job_title']}**\n"
-            #f"📌 Employer: {job['employer_name']}\n"
-            #f"🌐 Website: {job.get('employer_website', 'N/A')}\n"
-           # f"📍 Location: {job.get('job_location', 'Remote' if job['job_is_remote'] else 'N/A')}\n"
-            #f"🕒 Employment Type: {job.get('job_employment_type', 'N/A')}\n"
-           # f"💼 Published By: {job.get('job_publisher', 'N/A')}\n"
-           # f"📅 Posted: {job.get('job_posted_at', 'N/A')}\n"
-           # f"📄 Description: {job.get('job_description', 'N/A')[:300]}...\n"  # Truncate for brevity
-          #  f"⚡ Benefits: {', '.join(job['job_highlights'].get('Benefits', ['N/A']))}\n"
-          #  f"🎯 Qualifications: {', '.join(job['job_highlights'].get('Qualifications', ['N/A']))}\n"
-           # f"🔗 Apply Here: {job['job_apply_link']}"
-            #for job in results
-        #])
-       # data = {
-           # "message": message,
-           # "username": "UgoBest",
-           # "event_name": "Weekly hustle Generator",
-            #"status": "error"
-       # }
-
-      #  async with httpx.AsyncClient() as client:
-           # await client.post(return_url, json=data)
-
-
-    #else:
-       # return {"error": f"Failed to fetch jobs. Status Code: {response.status_code}"}
-
-
-#####@app.get("/weekly-hustles/")
-#def get_weekly_hustles():
-    """Fetch and return weekly side hustles dynamically when requested."""
-    #side_hustles = fetch_weekly_side_hustles()  # Call function inside endpoint
-    #if not side_hustles:
-        #return {"message": "No side hustles available yet. Please check later."}
-   # return {"weekly_hustles": side_hustles}
+    else:
+       logger.error(f"Failed to fetch jobs. Status Code: {response.status_code}")
 
 @app.get("/integration.json")
 def telex_integration():
