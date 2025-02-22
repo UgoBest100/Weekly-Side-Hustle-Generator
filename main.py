@@ -21,7 +21,6 @@ class Payload(BaseModel):
 
 app = FastAPI()
 
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -30,19 +29,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 async def fetch_weekly_side_hustles(payload: Payload):
     """Fetch side hustle ideas from the API and return them."""
     RAPIDAPI_KEY = "a9d4db2b83msh316d2d491587ab9p1e01b8jsn5c2a93b4c275"
-    RAPIDAPI_HOST = "upwork-jobs.p.rapidapi.com"
-    url = "https://upwork-jobs.p.rapidapi.com/jobs"
-
+    RAPIDAPI_HOST = "get-possible-hiring-manager.p.rapidapi.com"
+    url = "https://get-possible-hiring-manager.p.rapidapi.com/"
     headers = {
-        "X-RapidAPI-Key": RAPIDAPI_KEY,
-        "X-RapidAPI-Host": RAPIDAPI_HOST
+        "Content-Type": "application/json",
+        "x-rapidapi-host": RAPIDAPI_HOST,
+        "x-rapidapi-key": RAPIDAPI_KEY
     }
-    params = {"query": "side hustle", "num_pages": "1"}
-    response = requests.get(url, headers=headers, params=params)
+    data = {
+        "job_title": "Responsible AI Data Scientist",
+        "company_name": "Salesforce",
+        "location": "San Francisco"
+    }
+    response = requests.post(url, headers=headers, json=data)
     logger.info("Check response")
     logger.info(response)
 
@@ -51,30 +53,26 @@ async def fetch_weekly_side_hustles(payload: Payload):
 
         message = "\n\n".join([
             f"🔹 **{job['title']}**\n"
-            f"📌 Employer: {job['organization']}\n"
-            f"🌐 Website: {job.get('organization_url', 'N/A')}\n"
-            f"📍 Location: {job.get('linkedin_org_headquarters', 'Remote' if job['remote_derived'] else 'N/A')}\n"
-            f"🕒 Employment Type: {job.get('location_type', 'N/A')}\n"
-            f"💼 Published By: {job.get('recruiter_name', 'N/A')}\n"
-            f"📅 Posted: {job.get('date_posted', 'N/A')}\n"
-            f"📄 Description: {job.get('linkedin_org_description', 'N/A')[:300]}...\n"  # Truncate for brevity
-            f"⚡ Benefits: {job.get('linkedin_org_slogan', 'N/A')}\n"
-            f"🎯 Qualifications: {job.get('linkedin_org_size', 'N/A')}\n"
-            f"🔗 Apply Here: {job['url']}"
-            for job in response.json()
+            f"📌 Frequency: {job['frequency']}\n"
+            f"📄 Snippet: {job['snippet']}\n"
+            f"🔗 Link: {job['link']}"
+            for job in [
+                {"title": "Sitaram Asur - Director of Data Science - Salesforce", "frequency": 5, "snippet": "Director, Salesforce AI · Data scientist, engineer, and leader, with extensive background in data mining, machine learning, NLP, social network analysis and ...", "link": "https://www.linkedin.com/in/sitaram-asur-9a35008"},
+                {"title": "Anjali Samani, PhD - Salesforce", "frequency": 5, "snippet": "Experience: Salesforce · Location: San Francisco · 500+ connections on LinkedIn. View Anjali Samani, PhD's profile on LinkedIn, a professional community of ...", "link": "https://www.linkedin.com/in/anjalisamani"}
+            ]
         ])
         data = {
-           "message": message,
-           "username": "UgoBest",
-           "event_name": "Weekly hustle Generator",
-            "status": "error"
+            "message": message,
+            "username": "UgoBest",
+            "event_name": "Weekly hustle Generator",
+            "status": "success"
         }
 
         async with httpx.AsyncClient() as client:
-           await client.post(return_url, json=data)
+            await client.post(return_url, json=data)
 
     else:
-       logger.error(f"Failed to fetch jobs. Status Code: {response.status_code}")
+        logger.error(f"Failed to fetch jobs. Status Code: {response.status_code}")
 
 @app.get("/integration.json")
 def telex_integration():
@@ -86,7 +84,6 @@ def telex_integration():
                 "updated_at": datetime.now().strftime("%Y-%m-%d")
             },
             "descriptions": {
-
                 "app_description": "Provides weekly side hustle ideas.",
                 "app_logo": "https://postimg.cc/bGS5k8hm",
                 "app_name": "Weekly Side Hustle Generator",
@@ -115,6 +112,7 @@ def telex_integration():
             "target_url": ""
         }
     }
+
 @app.post("/tick", status_code=202)
 def monitor(payload: Payload, background_tasks: BackgroundTasks):
     background_tasks.add_task(fetch_weekly_side_hustles, payload)
