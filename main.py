@@ -6,9 +6,7 @@ from typing import List
 import httpx
 from fastapi.middleware.cors import CORSMiddleware
 import logging
-
 logger = logging.getLogger(__name__)
-
 
 class Setting(BaseModel):
     label: str
@@ -16,14 +14,13 @@ class Setting(BaseModel):
     required: bool
     default: str
 
-
 class Payload(BaseModel):
     channel_id: str
     return_url: str
     settings: List[Setting]
 
-
 app = FastAPI()
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -35,7 +32,7 @@ app.add_middleware(
 
 
 async def fetch_weekly_side_hustles(payload: Payload):
-    """Fetch side hustle ideas from the Upwork Jobs API and return them."""
+    """Fetch side hustle ideas from the API and return them."""
     RAPIDAPI_KEY = "a9d4db2b83msh316d2d491587ab9p1e01b8jsn5c2a93b4c275"
     RAPIDAPI_HOST = "upwork-jobs.p.rapidapi.com"
     url = "https://upwork-jobs.p.rapidapi.com/jobs"
@@ -44,43 +41,40 @@ async def fetch_weekly_side_hustles(payload: Payload):
         "X-RapidAPI-Key": RAPIDAPI_KEY,
         "X-RapidAPI-Host": RAPIDAPI_HOST
     }
-
-    response = requests.get(url, headers=headers)
+    params = {"query": "side hustle", "num_pages": "1"}
+    response = requests.get(url, headers=headers, params=params)
     logger.info("Check response")
     logger.info(response)
 
     if response.status_code == 200:
-        jobs_list = response.json()
         return_url = "https://ping.telex.im/v1/webhooks/01952814-87fa-74ff-839a-5937f06f0d5f"
 
         message = "\n\n".join([
             f"🔹 **{job['title']}**\n"
-            f"📌 Employer: N/A\n"
-            f"🌐 Website: N/A\n"
-            f"📍 Location: {job.get('location', 'N/A')}\n"
-            f"🕒 Employment Type: {job.get('budget', 'N/A')}\n"
-            f"💼 Published By: Upwork\n"
-            f"📅 Posted: {job.get('posted', 'N/A')}\n"
-            f"📄 Description: {job.get('description', 'N/A')[:300]}...\n"
-            f"⚡ Benefits: N/A\n"
-            f"🎯 Qualifications: {job.get('experienceLevel', 'N/A')}\n"
-            f"🔗 Apply Here: {job['link']}"
-            for job in jobs_list
+            f"📌 Employer: {job['organization']}\n"
+            f"🌐 Website: {job.get('organization_url', 'N/A')}\n"
+            f"📍 Location: {job.get('linkedin_org_headquarters', 'Remote' if job['remote_derived'] else 'N/A')}\n"
+            f"🕒 Employment Type: {job.get('location_type', 'N/A')}\n"
+            f"💼 Published By: {job.get('recruiter_name', 'N/A')}\n"
+            f"📅 Posted: {job.get('date_posted', 'N/A')}\n"
+            f"📄 Description: {job.get('linkedin_org_description', 'N/A')[:300]}...\n"  # Truncate for brevity
+            f"⚡ Benefits: {job.get('linkedin_org_slogan', 'N/A')}\n"
+            f"🎯 Qualifications: {job.get('linkedin_org_size', 'N/A')}\n"
+            f"🔗 Apply Here: {job['url']}"
+            for job in response.json()
         ])
-
         data = {
-            "message": message,
-            "username": "UgoBest",
-            "event_name": "Weekly Hustle Generator",
-            "status": "success"
+           "message": message,
+           "username": "UgoBest",
+           "event_name": "Weekly hustle Generator",
+            "status": "error"
         }
 
         async with httpx.AsyncClient() as client:
-            await client.post(return_url, json=data)
+           await client.post(return_url, json=data)
 
     else:
-        logger.error(f"Failed to fetch jobs. Status Code: {response.status_code}")
-
+       logger.error(f"Failed to fetch jobs. Status Code: {response.status_code}")
 
 @app.get("/integration.json")
 def telex_integration():
@@ -92,6 +86,7 @@ def telex_integration():
                 "updated_at": datetime.now().strftime("%Y-%m-%d")
             },
             "descriptions": {
+
                 "app_description": "Provides weekly side hustle ideas.",
                 "app_logo": "https://postimg.cc/bGS5k8hm",
                 "app_name": "Weekly Side Hustle Generator",
@@ -116,14 +111,11 @@ def telex_integration():
                     "default": "* * * * *"
                 }
             ],
-            "tick_url": "https://weekly-side-hustle-generator.onrender.com/tick",
+            "tick_url": "https://weekly-side-hustle-generator.onrender.com/tick/",
             "target_url": ""
         }
     }
-
-
 @app.post("/tick", status_code=202)
-@app.post("/tick/", status_code=202)  # Accept both with and without a slash
 def monitor(payload: Payload, background_tasks: BackgroundTasks):
     background_tasks.add_task(fetch_weekly_side_hustles, payload)
     return {"status": "accepted"}
