@@ -23,7 +23,7 @@ Ensure you have the following installed:
 ### Installation
 1. Clone this repository:
    ```sh
-   git clone https://github.com/yourusername/weekly-side-hustle-generator.git
+   git clone https://github.com/UgoBest100/weekly-side-hustle-generator.git
    cd weekly-side-hustle-generator
    ```
 
