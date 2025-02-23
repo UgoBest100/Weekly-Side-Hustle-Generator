@@ -85,7 +85,7 @@ def telex_integration():
             },
             "descriptions": {
                 "app_description": "Provides weekly side hustle ideas.",
-                "app_logo": "https://postimg.cc/bGS5k8hm",
+                "app_logo": "https://github.com/telexintegrations/Weekly-Side-Hustle-Generator/blob/e672ac5a58ddafb8a21ebf3c8c37b7ec04915cb6/IMG_2764.JPG",
                 "app_name": "Weekly Side Hustle Generator",
                 "app_url": "https://weekly-side-hustle-generator.onrender.com",
                 "background_color": "#FF5733"
