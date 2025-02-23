@@ -94,6 +94,55 @@ The application will be available at `http://127.0.0.1:8000`.
      { "status": "accepted" }
      ```
 
+## Testing the API
+
+### ✅ Check API Status
+Open your browser and go to:
+```
+http://127.0.0.1:8000/docs
+```
+This will open the **Swagger UI**, where you can interact with the API.
+
+Alternatively, you can check the integration JSON response:
+```bash
+curl -X GET http://127.0.0.1:8000/integration.json
+```
+
+### 🔁 Testing the `/tick` Endpoint
+To trigger a job fetch manually, send a **POST** request with test payload:
+```bash
+curl -X POST "http://127.0.0.1:8000/tick" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "channel_id": "test-channel",
+           "return_url": "https://example.com/webhook",
+           "settings": [
+               {
+                   "label": "interval",
+                   "type": "text",
+                   "required": true,
+                   "default": "* * * * *"
+               }
+           ]
+        }'
+```
+
+Expected Response:
+```json
+{"status": "accepted"}
+```
+
+### 🐛 Debugging Errors
+- **404 Not Found** → Check if the API is running on the correct port.
+- **429 Too Many Requests** → You may have exceeded your API request limit.
+- **500 Internal Server Error** → Check the logs for detailed errors.
+
+### 📜 Logs
+To monitor logs in real-time, run:
+```bash
+uvicorn main:app --reload --log-level debug
+```
+
 ## Deployment
 This application can be deployed using **Render**, **Heroku**, or **Docker**.
 
@@ -121,30 +170,11 @@ This application can be deployed using **Render**, **Heroku**, or **Docker**.
    docker build -t weekly-side-hustle .
    docker run -p 8000:8000 weekly-side-hustle
    ```
-  
-   Screenshots
+    Screenshots
    ![image alt](https://github.com/telexintegrations/Weekly-Side-Hustle-Generator/blob/6162adab4d95a6d0cc096677d27e4fa84348ab94/e34feed0-f174-4a58-a398-8e9c0a3c0693.JPG)
-
-# Hiring Manager API Integration
-
-This project integrates with the **Get Possible Hiring Manager** API to fetch hiring manager details.
-
-## Features
-- Retrieves possible hiring managers for job postings.
-- Uses **RapidAPI** for seamless integration.
-- Limited to **8 requests per month** (free tier).
-## API Configuration
-
-
-RAPIDAPI_KEY=your_rapidapi_key
-RAPIDAPI_HOST=get-possible-hiring-manager.p.rapidapi.com
-RAPIDAPI_KEY=your_rapidapi_key
-RAPIDAPI_HOST=get-possible-hiring-manager.p.rapidapi.com
-
 
 ## Author
 Developed by **UgoBest** for the HNG Internship Telex Integration Stage 3 Task.
 
 ## License
 This project is open-source and available under the **MIT License**.
-
